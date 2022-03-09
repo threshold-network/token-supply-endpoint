@@ -9,7 +9,7 @@ To test locally:
   whatever mainnet provider you want - I used
   [alchemy](https://www.alchemy.com/)) in the command line.
   [direnv](https://direnv.net/) is fantastic for this and is ignored in
-  .gitigore.
+  `.gitignore`.
 + modify main.py to call `print(main({}))`
 + run `$ pip install -r requirements.txt`
 + run `$ python main.py`
