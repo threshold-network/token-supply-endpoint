@@ -64,5 +64,7 @@ def main(request):
 
                 if request.path == "/circulating":
                     return str(circulating_t_tokens)
-                else:
+                elif request.path == '/':
                     return json.dumps(results)
+                else:
+                    return f'unknown route {request.path}'
