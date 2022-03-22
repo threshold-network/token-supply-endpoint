@@ -18,4 +18,16 @@ def main(request):
     keep_token_grant = keep_token_contract.functions.balanceOf('0x175989c71Fd023D580C65F5dC214002687ff88B7').call()
     magic_subtractor = 59053770 * (10 ** 18)
     keep_circulating_supply = keep_total_supply - keep_token_grant - magic_subtractor
-    return str(keep_circulating_supply / (10 ** 18))
+    est_circulating_supply = keep_circulating_supply / (10 ** 18)
+    results = {
+        'total_supply': keep_total_supply / (10 ** 18),
+        'est_circulating_supply': est_circulating_supply
+    }
+    if request.path == '/total':
+        return str(results['total_supply'])
+    elif request.path == '/circulating':
+        return str(est_circulating_supply)
+    elif request.path == '/':
+        return json.dumps(results)
+    else:
+        return f'unknown route {request.path}'
