@@ -12,7 +12,6 @@ def main(request):
         `make_response <http://flask.pocoo.org/docs/1.0/api/#flask.Flask.make_response>`.
     """
 
-
     address = '0xCdF7028ceAB81fA0C6971208e83fa7872994beE5'
     with open('t-contract.abi') as t_contract_file:
         abi = t_contract_file.read()
@@ -28,7 +27,14 @@ def main(request):
                 nu_token_contract = w3.eth.contract(address=address, abi=abi)
 
                 t_total_supply = t_token_contract.functions.totalSupply().call()
+
+                if request.path == "/total":
+                    return str(t_total_supply / (10 ** 18))
+
                 t_treasury_supply = t_token_contract.functions.balanceOf('0x9F6e831c8F8939DC0C830C6e492e7cEf4f9C2F5f').call()
+                if request.path == "/treasury":
+                    return str(t_treasury_supply / (10 ** 18))
+
                 nu_vending_machine = t_token_contract.functions.balanceOf('0x1CCA7E410eE41739792eA0A24e00349Dd247680e').call()
 
                 nu_token_factor = 3.25924249316
@@ -55,4 +61,10 @@ def main(request):
                         'dao_treasury_supply': t_treasury_supply / (10 ** 18),
                         'est_circulating_supply': circulating_t_tokens
                 }
-                return json.dumps(results)
+
+                if request.path == "/circulating":
+                    return str(circulating_t_tokens)
+                elif request.path == '/':
+                    return json.dumps(results)
+                else:
+                    return f'unknown route {request.path}'
