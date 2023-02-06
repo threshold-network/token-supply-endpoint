@@ -7,6 +7,8 @@ from web3.auto import w3
 NU_TOKEN_FACTOR = 3.25924249316
 KEEP_TOKEN_FACTOR = 4.78318863126
 
+WEI_FACTOR = 10 ** 18
+
 # Addresses
 T_TOKEN_ADDRESS = "0xCdF7028ceAB81fA0C6971208e83fa7872994beE5"
 T_TREASURY_ADDRESS = "0x9F6e831c8F8939DC0C830C6e492e7cEf4f9C2F5f"
@@ -16,12 +18,14 @@ NU_TOKEN_ADDRESS = "0x4fE83213D56308330EC302a8BD641f1d0113A4Cc"
 MERKLE_DISTRIBUTION_ADDRESS = "0xeA7CA290c7811d1cC2e79f8d706bD05d8280BD37"
 
 # Token supply constants
-MAGIC_KEEP_SUPPLY_SUBTRACTOR = 59053770 * (10 ** 18)
-INITIAL_T_SUPPLY = 10_000_000_000 * (10 ** 18)  # 10B T
-INITIAL_TREASURY_SUPPLY = 1_000_000_000 * (10 ** 18)  # 1B T
+MAGIC_KEEP_SUPPLY_SUBTRACTOR = 59053770 * WEI_FACTOR
+INITIAL_T_SUPPLY = 10_000_000_000 * WEI_FACTOR  # 10B T
+INITIAL_TREASURY_SUPPLY = 1_000_000_000 * WEI_FACTOR  # 1B T
+
+NU_CIRCULATING_SUPPLY_ENDPOINT = "https://status.nucypher.network/supply_information?q=est_circulating_supply"
 
 # Merkle Distribution
-MERKLE_DISTRIBUTION_SUMMARY_FILENAME = "distributions.json"
+MERKLE_DISTRIBUTION_SUMMARY_ENDPOINT = f"https://raw.githubusercontent.com/threshold-network/merkle-distribution/main/distributions/distributions.json"
 MERKLE_DISTRIBUTION_CONTRACT_DEPLOYMENT_BLOCK = 15146501  # block that contract was deployed
 
 
@@ -42,9 +46,7 @@ def get_total_staking_rewards():
     """
     Retrieves total staking rewards issued from the threshold/merkle-distribution repos.
     """
-    distribution_file = make_request(
-        f"https://raw.githubusercontent.com/threshold-network/merkle-distribution/main/distributions/{MERKLE_DISTRIBUTION_SUMMARY_FILENAME}"
-    )
+    distribution_file = make_request(MERKLE_DISTRIBUTION_SUMMARY_ENDPOINT)
     total_staking_rewards = int(distribution_file["LatestCumulativeAmount"])
     return total_staking_rewards
 
@@ -58,7 +60,9 @@ def get_already_claimed_rewards():
     with open("merkle-distribution.abi") as merkle_distribution_contract_file:
         abi = merkle_distribution_contract_file.read()
         merkle_distribution_contract = w3.eth.contract(address=MERKLE_DISTRIBUTION_ADDRESS, abi=abi)
-        events = merkle_distribution_contract.events["Claimed"].getLogs(fromBlock=MERKLE_DISTRIBUTION_CONTRACT_DEPLOYMENT_BLOCK)
+        events = merkle_distribution_contract.events["Claimed"].getLogs(
+            fromBlock=MERKLE_DISTRIBUTION_CONTRACT_DEPLOYMENT_BLOCK
+        )
         for event in events:
             total_claimed += event["args"]["amount"]
 
@@ -85,7 +89,7 @@ def main(request):
     t_total_supply = t_token_contract.functions.totalSupply().call()
 
     if request.path == "/total":
-        return str(t_total_supply / (10 ** 18))
+        return str(t_total_supply / WEI_FACTOR)
 
     #
     # Treasury Supply Calcs
@@ -103,7 +107,7 @@ def main(request):
     t_treasury_supply = t_treasury_current_balance - unclaimed_rewards - overminted_tokens
 
     if request.path == "/treasury":
-        return str(t_treasury_supply / (10 ** 18))
+        return str(t_treasury_supply / WEI_FACTOR)
 
     #
     # Circulating Supply Calcs
@@ -119,11 +123,8 @@ def main(request):
     circulating_t_from_keep = keep_circulating_supply * KEEP_TOKEN_FACTOR
 
     # NU Tokens Calc
-    nu_circulating_supply = make_request(
-        "https://status.nucypher.network/supply_information?q=est_circulating_supply",
-        verify=False
-    )
-    circulating_t_from_nu = nu_circulating_supply * NU_TOKEN_FACTOR * (10 ** 18)
+    nu_circulating_supply = make_request(NU_CIRCULATING_SUPPLY_ENDPOINT, verify=False)
+    circulating_t_from_nu = nu_circulating_supply * NU_TOKEN_FACTOR * WEI_FACTOR
 
     # Treasury spend = Initial Treasury Supply - Current Treasury Supply
     t_treasury_spend = INITIAL_TREASURY_SUPPLY - t_treasury_supply
@@ -131,12 +132,12 @@ def main(request):
     # T circulating supply
     #     = All unlocked NU * 3.259 + All unlocked KEEP * 4.783 + staking rewards + treasury spend
     circulating_t = circulating_t_from_nu + circulating_t_from_keep + total_staking_rewards + t_treasury_spend
-    circulating_t_tokens = circulating_t / (10 ** 18)
+    circulating_t_tokens = circulating_t / WEI_FACTOR
 
     results = {
-        "current_total_supply": t_total_supply / (10 ** 18),
-        "dao_treasury_supply": t_treasury_supply / (10 ** 18),
-        "future_rewards_supply": overminted_tokens / (10**18),
+        "current_total_supply": t_total_supply / WEI_FACTOR,
+        "dao_treasury_supply": t_treasury_supply / WEI_FACTOR,
+        "future_rewards_supply": overminted_tokens / WEI_FACTOR,
         "est_circulating_supply": circulating_t_tokens
     }
 
