@@ -13,7 +13,6 @@ WEI_FACTOR = 10 ** 18
 T_TOKEN_ADDRESS = "0xCdF7028ceAB81fA0C6971208e83fa7872994beE5"
 KEEP_TOKEN_ADDRESS = "0x85Eee30c52B0b379b046Fb0F85F4f3Dc3009aFEC"
 KEEP_TOKEN_GRANT_ADDRESS = "0x175989c71Fd023D580C65F5dC214002687ff88B7"
-COUNCIL_MULTISIG_ADDRESS = "0x9F6e831c8F8939DC0C830C6e492e7cEf4f9C2F5f"
 GB_TIMELOCK_CONTROLLER_ADDRESS = "0x87F005317692D05BAA4193AB0c961c69e175f45f"  # T Treasury stored here
 
 # Token supply constants
@@ -76,9 +75,7 @@ def main(request):
     #
     
     # Treasury Supply i.e. T in Governor Bravo TimeLock Contract
-
-    # (Council is in the process of transferring the value) but need the endpoint to work in the interim
-    t_treasury_supply = t_token_contract.functions.balanceOf(GB_TIMELOCK_CONTROLLER_ADDRESS).call() + t_token_contract.functions.balanceOf(COUNCIL_MULTISIG_ADDRESS).call()
+    t_treasury_supply = t_token_contract.functions.balanceOf(GB_TIMELOCK_CONTROLLER_ADDRESS).call()
     if request.path == "/treasury":
         return str(t_treasury_supply / WEI_FACTOR)
 
