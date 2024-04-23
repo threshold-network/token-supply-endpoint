@@ -84,8 +84,7 @@ def main(request):
     #
 
     # NU Tokens Calc
-    nu_circulating_supply = make_request(NU_CIRCULATING_SUPPLY_ENDPOINT, verify=False)
-    circulating_t_from_nu = nu_circulating_supply * NU_TOKEN_FACTOR * WEI_FACTOR
+    circulating_t_from_nu = 1380688920 * NU_TOKEN_FACTOR * WEI_FACTOR # Nu is fully circulating at 1.38B
 
     # KEEP Tokens Calc
     keep_token_contract = w3.eth.contract(address=KEEP_TOKEN_ADDRESS, abi=abi)
