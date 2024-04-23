@@ -20,8 +20,6 @@ MAGIC_KEEP_SUPPLY_SUBTRACTOR = 59053770 * WEI_FACTOR
 INITIAL_T_SUPPLY = 10_000_000_000 * WEI_FACTOR  # 10B T
 INITIAL_TREASURY_SUPPLY = 1_000_000_000 * WEI_FACTOR  # 1B T
 
-NU_CIRCULATING_SUPPLY_ENDPOINT = "https://status.nucypher.network/supply_information?q=est_circulating_supply"
-
 # Merkle Distribution
 MERKLE_DISTRIBUTION_SUMMARY_ENDPOINT = f"https://raw.githubusercontent.com/threshold-network/merkle-distribution/main/distributions/distributions.json"
 
