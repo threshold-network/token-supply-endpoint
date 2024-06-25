@@ -1,5 +1,6 @@
 import json
 
+import maya
 import requests
 from web3.auto import w3
 
@@ -20,7 +21,13 @@ MAGIC_KEEP_SUPPLY_SUBTRACTOR = 59053770 * WEI_FACTOR
 INITIAL_T_SUPPLY = 10_000_000_000 * WEI_FACTOR  # 10B T
 INITIAL_TREASURY_SUPPLY = 1_000_000_000 * WEI_FACTOR  # 1B T
 
-NU_CIRCULATING_SUPPLY_ENDPOINT = "https://status.nucypher.network/supply_information?q=est_circulating_supply"
+# NU Token
+# The only vesting remaining is NuCo (200M NU); this happens on October 15, 2025 -
+#  until then circulating supply will remain constant. Once NuCo vests then circulating supply
+#  will equal total supply
+NU_CIRCULATING_SUPPLY_PRE_NUCO_VESTING_DATE = 1_180_688_920.6442547  # original NU supply endpoint returns this value before October 15, 2025
+NU_FINAL_CIRCULATING_SUPPLY_POST_NUCO_VESTING_DATE = 1_380_688_920.6442547  # difference of 200M NU (equals supply of NU used for Threshold merger)
+NUCO_VESTING_DATE = maya.MayaDT.from_rfc3339('2025-10-15T00:00:00.0Z')
 
 # Merkle Distribution
 MERKLE_DISTRIBUTION_SUMMARY_ENDPOINT = f"https://raw.githubusercontent.com/threshold-network/merkle-distribution/main/distributions/distributions.json"
@@ -84,7 +91,11 @@ def main(request):
     #
 
     # NU Tokens Calc
-    nu_circulating_supply = make_request(NU_CIRCULATING_SUPPLY_ENDPOINT, verify=False)
+    nu_circulating_supply = NU_CIRCULATING_SUPPLY_PRE_NUCO_VESTING_DATE
+    if maya.now() >= NUCO_VESTING_DATE:
+        # NuCo stake of 200M NU has now vested
+        nu_circulating_supply = NU_FINAL_CIRCULATING_SUPPLY_POST_NUCO_VESTING_DATE
+
     circulating_t_from_nu = nu_circulating_supply * NU_TOKEN_FACTOR * WEI_FACTOR
 
     # KEEP Tokens Calc
