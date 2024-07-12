@@ -1,6 +1,6 @@
 import json
 
-import maya
+import datetime
 import requests
 from web3.auto import w3
 
@@ -27,7 +27,7 @@ INITIAL_TREASURY_SUPPLY = 1_000_000_000 * WEI_FACTOR  # 1B T
 #  will equal total supply
 NU_CIRCULATING_SUPPLY_PRE_NUCO_VESTING_DATE = 1_180_688_920.6442547  # original NU supply endpoint returns this value before October 15, 2025
 NU_FINAL_CIRCULATING_SUPPLY_POST_NUCO_VESTING_DATE = 1_380_688_920.6442547  # difference of 200M NU (equals supply of NU used for Threshold merger)
-NUCO_VESTING_DATE = maya.MayaDT.from_rfc3339('2025-10-15T00:00:00.0Z')
+NUCO_VESTING_DATE = datetime.datetime(2025, 10, 15, 0, 0, 0, tzinfo=datetime.timezone.utc)
 
 # Merkle Distribution
 MERKLE_DISTRIBUTION_SUMMARY_ENDPOINT = f"https://raw.githubusercontent.com/threshold-network/merkle-distribution/main/distributions/distributions.json"
@@ -80,7 +80,7 @@ def main(request):
     #
     # Treasury Supply Calcs
     #
-    
+
     # Treasury Supply i.e. T in Governor Bravo TimeLock Contract
     t_treasury_supply = t_token_contract.functions.balanceOf(GB_TIMELOCK_CONTROLLER_ADDRESS).call()
     if request.path == "/treasury":
@@ -92,7 +92,7 @@ def main(request):
 
     # NU Tokens Calc
     nu_circulating_supply = NU_CIRCULATING_SUPPLY_PRE_NUCO_VESTING_DATE
-    if maya.now() >= NUCO_VESTING_DATE:
+    if datetime.datetime.now(datetime.timezone.utc) >= NUCO_VESTING_DATE:
         # NuCo stake of 200M NU has now vested
         nu_circulating_supply = NU_FINAL_CIRCULATING_SUPPLY_POST_NUCO_VESTING_DATE
 
