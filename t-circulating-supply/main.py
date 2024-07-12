@@ -92,7 +92,7 @@ def main(request):
 
     # NU Tokens Calc
     nu_circulating_supply = NU_CIRCULATING_SUPPLY_PRE_NUCO_VESTING_DATE
-    if datetime.datetime.now() >= NUCO_VESTING_DATE:
+    if datetime.datetime.now(datetime.timezone.utc) >= NUCO_VESTING_DATE:
         # NuCo stake of 200M NU has now vested
         nu_circulating_supply = NU_FINAL_CIRCULATING_SUPPLY_POST_NUCO_VESTING_DATE
 
