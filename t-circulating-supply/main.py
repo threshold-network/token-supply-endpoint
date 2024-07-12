@@ -27,7 +27,7 @@ INITIAL_TREASURY_SUPPLY = 1_000_000_000 * WEI_FACTOR  # 1B T
 #  will equal total supply
 NU_CIRCULATING_SUPPLY_PRE_NUCO_VESTING_DATE = 1_180_688_920.6442547  # original NU supply endpoint returns this value before October 15, 2025
 NU_FINAL_CIRCULATING_SUPPLY_POST_NUCO_VESTING_DATE = 1_380_688_920.6442547  # difference of 200M NU (equals supply of NU used for Threshold merger)
-NUCO_VESTING_DATE = datetime.datetime(2025, 10, 15, 0, 0, 0)
+NUCO_VESTING_DATE = datetime.datetime(2025, 10, 15, 0, 0, 0, tzinfo=datetime.timezone.utc)
 
 # Merkle Distribution
 MERKLE_DISTRIBUTION_SUMMARY_ENDPOINT = f"https://raw.githubusercontent.com/threshold-network/merkle-distribution/main/distributions/distributions.json"
