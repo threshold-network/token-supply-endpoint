@@ -1,0 +1,36 @@
+name: Security Scan
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  schedule:
+    - cron: "0 0 * * 0"
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+  security-events: write
+  actions: read
+
+jobs:
+  semgrep:
+    runs-on: ubuntu-latest
+    container:
+      image: semgrep/semgrep:1.157.0
+    steps:
+      - uses: actions/checkout@93cb6efe18208431cddfb8368fd83d5badbf9bfd # v4.2.2
+      - name: Run Semgrep
+        run: semgrep --config .semgrep.yml --config p/python --config p/secrets --config r/trailofbits.python --error
+
+  osv-scan:
+    uses: google/osv-scanner-action/.github/workflows/osv-scanner-reusable-pr.yml@c51854704019a247608d928f370c98740469d4b5 # v2.3.5
+    with:
+      upload-sarif: false
+      scan-args: |-
+        --lockfile=t-circulating-supply/requirements.txt
+        --lockfile=keep-circulating-supply/requirements.txt
+        --lockfile=tbtc-circulating-supply/requirements.txt
