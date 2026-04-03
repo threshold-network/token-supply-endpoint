@@ -1,0 +1,7 @@
+# .semgrep.yml — managed by tlabs-xyz/devops sync:semgrep
+# Regenerate: bun run sync:semgrep --generate --repo threshold-network/token-supply-endpoint
+#
+# Registry rulesets: p/python p/secrets
+# External sources: trailofbits (see semgrep/sources.yml)
+# Run locally: semgrep --config .semgrep.yml --config p/python --config p/secrets --config r/trailofbits.python --error
+rules: []
