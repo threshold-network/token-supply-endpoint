@@ -1,1 +1,4 @@
+# certifi supplies the trust store used by requests (via web3), not the OS one.
+# 2026.10.19 drops the compromised eMudhra roots (Mozilla bug 2083449).
 web3 == 5.28.0
+certifi >= 2026.10.19
